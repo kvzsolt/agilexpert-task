@@ -1,12 +1,15 @@
 package hu.agileexpert.smartos.service;
 
 import hu.agileexpert.smartos.domain.Theme;
+import hu.agileexpert.smartos.exception.IdMismatchException;
+import hu.agileexpert.smartos.exception.ResourceNotFoundException;
 import hu.agileexpert.smartos.repository.ThemeRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ThemeService {
 //TODO: Implement model mapper after dtos implemented.
 
@@ -22,7 +25,7 @@ public class ThemeService {
 
 	public Theme findById(Long id) {
 		return themeRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Theme not found with id: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException("Theme", id));
 	}
 
 	public List<Theme> findAll() {
@@ -30,8 +33,16 @@ public class ThemeService {
 	}
 
 	public Theme update(Long id, Theme theme) {
-		findById(id);
-		return themeRepository.save(theme);
+		Theme existing = findById(id);
+
+		if (theme.getId() != null && !theme.getId().equals(id)) {
+			throw new IdMismatchException("Theme", id, theme.getId());
+		}
+
+		existing.setExternalId(theme.getExternalId());
+		existing.setName(theme.getName());
+
+		return existing;
 	}
 
 	public void deleteById(Long id) {

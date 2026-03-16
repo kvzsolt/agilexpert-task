@@ -1,8 +1,9 @@
 package hu.agileexpert.smartos.service;
 
 import hu.agileexpert.smartos.domain.Account;
+import hu.agileexpert.smartos.exception.IdMismatchException;
+import hu.agileexpert.smartos.exception.ResourceNotFoundException;
 import hu.agileexpert.smartos.repository.AccountRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class AccountService {
 
     public Account findById(Long id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Account", id));
     }
 
     public List<Account> findAll() {
@@ -34,8 +35,20 @@ public class AccountService {
     }
 
     public Account update(Long id, Account account) {
-        findById(id);
-        return accountRepository.save(account);
+        Account existing = findById(id);
+
+        if (account.getId() != null && !account.getId().equals(id)) {
+            throw new IdMismatchException("Account", id, account.getId());
+        }
+
+        existing.setExternalId(account.getExternalId());
+        existing.setName(account.getName());
+        existing.setMenu(account.getMenu());
+        existing.setApplications(account.getApplications());
+        existing.setTheme(account.getTheme());
+        existing.setWallpaper(account.getWallpaper());
+
+        return existing;
     }
 
     public void deleteById(Long id) {

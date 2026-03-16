@@ -1,8 +1,9 @@
 package hu.agileexpert.smartos.service;
 
 import hu.agileexpert.smartos.domain.Application;
+import hu.agileexpert.smartos.exception.IdMismatchException;
+import hu.agileexpert.smartos.exception.ResourceNotFoundException;
 import hu.agileexpert.smartos.repository.ApplicationRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class ApplicationService {
 
     public Application findById(Long id) {
         return applicationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Application not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Application", id));
     }
 
     public List<Application> findAll() {
@@ -35,8 +36,16 @@ public class ApplicationService {
     }
 
     public Application update(Long id, Application application) {
-        findById(id);
-        return applicationRepository.save(application);
+        Application existing = findById(id);
+
+        if (application.getId() != null && !application.getId().equals(id)) {
+            throw new IdMismatchException("Application", id, application.getId());
+        }
+
+        existing.setExternalId(application.getExternalId());
+        existing.setName(application.getName());
+
+        return existing;
     }
 
     public void deleteById(Long id) {
