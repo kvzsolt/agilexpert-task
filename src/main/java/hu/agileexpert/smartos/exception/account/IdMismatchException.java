@@ -1,4 +1,4 @@
-package hu.agileexpert.smartos.exception;
+package hu.agileexpert.smartos.exception.account;
 
 public class IdMismatchException extends RuntimeException {
 
