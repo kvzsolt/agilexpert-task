@@ -17,6 +17,8 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Application {
 
 	@Id
@@ -24,11 +26,12 @@ public class Application {
 	private Long id;
 
 	@Column(nullable = false, unique = true, length = 50)
-	private String externalId;
+	private String uniqueIdentifier;
 
 	@Column(nullable = false, length = 80)
 	private String name;
 
 	@ManyToMany(mappedBy = "applications")
+	@Builder.Default
 	private List<Account> accounts = new ArrayList<>();
 }

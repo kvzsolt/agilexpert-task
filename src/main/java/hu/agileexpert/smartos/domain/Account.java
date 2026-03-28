@@ -1,5 +1,6 @@
 package hu.agileexpert.smartos.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Account {
 
 	@Id
@@ -19,10 +22,17 @@ public class Account {
 	private Long id;
 
 	@Column(nullable = false, unique = true, length = 50)
-	private String externalId;
+	private String uniqueIdentifier;
 
 	@Column(nullable = false, length = 80)
 	private String name;
+
+	@Column(nullable = false, unique = true, length = 50)
+	private String username;
+
+	@JsonIgnore
+	@Column(nullable = false)
+	private String password;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_id")
@@ -34,6 +44,7 @@ public class Account {
 			joinColumns = @JoinColumn(name = "account_id"),
 			inverseJoinColumns = @JoinColumn(name = "application_id")
 	)
+	@Builder.Default
 	private List<Application> applications = new ArrayList<>();
 
 	@ManyToOne(fetch = FetchType.LAZY)

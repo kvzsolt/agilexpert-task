@@ -19,6 +19,8 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Menu {
 
 	@Id
@@ -26,12 +28,13 @@ public class Menu {
 	private Long id;
 
 	@Column(nullable = false, unique = true, length = 50)
-	private String externalId;
+	private String uniqueIdentifier;
 
 	@Column(nullable = false, length = 80)
 	private String name;
 
 	@OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<MenuItem> menuItems = new ArrayList<>();
 
 	@OneToOne(mappedBy = "menu")
