@@ -9,7 +9,13 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
+.proxyai
+.qodo
+.idea
+/logs
+/data
+/target
+spring-shell.log
 # Package Files #
 *.jar
 *.war
