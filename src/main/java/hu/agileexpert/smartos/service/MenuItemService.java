@@ -3,6 +3,7 @@ package hu.agileexpert.smartos.service;
 import hu.agileexpert.smartos.domain.Application;
 import hu.agileexpert.smartos.domain.Menu;
 import hu.agileexpert.smartos.domain.MenuItem;
+import hu.agileexpert.smartos.dto.menuitem.MenuItemMapper;
 import hu.agileexpert.smartos.dto.menuitem.MenuItemRequest;
 import hu.agileexpert.smartos.dto.menuitem.MenuItemResponse;
 import hu.agileexpert.smartos.exception.account.IdMismatchException;
@@ -43,22 +44,22 @@ public class MenuItemService {
 
 		validateApplicationAndChildren(menuItem);
 		MenuItem created = create(menuItem);
-		return toTreeResponse(created);
+		return MenuItemMapper.toTreeResponse(created);
 	}
 
 	public MenuItemResponse findByIdResponse(Long id) {
-		return toTreeResponse(findById(id));
+		return MenuItemMapper.toTreeResponse(findById(id));
 	}
 
 	public List<MenuItemResponse> findAllResponses() {
 		return findAll().stream()
-				.map(this::toFlatResponse)
+				.map(MenuItemMapper::toFlatResponse)
 				.toList();
 	}
 
 	public MenuItemResponse update(Long id, MenuItemRequest request) {
 		MenuItem updated = update(id, requestToEntity(id, request));
-		return toTreeResponse(updated);
+		return MenuItemMapper.toTreeResponse(updated);
 	}
 
 	public MenuItem create(MenuItem menuItem) {
@@ -166,33 +167,5 @@ public class MenuItemService {
 		if (menuItem.getApplication() != null && !menuItem.getChildren().isEmpty()) {
 			throw new IllegalArgumentException("A menu item cannot both launch an application and contain submenu items.");
 		}
-	}
-
-	private MenuItemResponse toFlatResponse(MenuItem menuItem) {
-		return MenuItemResponse.builder()
-				.id(menuItem.getId())
-				.uniqueIdentifier(menuItem.getUniqueIdentifier())
-				.name(menuItem.getName())
-				.menuId(menuItem.getMenu() != null ? menuItem.getMenu().getId() : null)
-				.parentId(menuItem.getParent() != null ? menuItem.getParent().getId() : null)
-				.applicationId(menuItem.getApplication() != null ? menuItem.getApplication().getId() : null)
-				.applicationName(menuItem.getApplication() != null ? menuItem.getApplication().getName() : null)
-				.children(List.of())
-				.build();
-	}
-
-	private MenuItemResponse toTreeResponse(MenuItem menuItem) {
-		return MenuItemResponse.builder()
-				.id(menuItem.getId())
-				.uniqueIdentifier(menuItem.getUniqueIdentifier())
-				.name(menuItem.getName())
-				.menuId(menuItem.getMenu() != null ? menuItem.getMenu().getId() : null)
-				.parentId(menuItem.getParent() != null ? menuItem.getParent().getId() : null)
-				.applicationId(menuItem.getApplication() != null ? menuItem.getApplication().getId() : null)
-				.applicationName(menuItem.getApplication() != null ? menuItem.getApplication().getName() : null)
-				.children(menuItem.getChildren().stream()
-						.map(this::toTreeResponse)
-						.toList())
-				.build();
 	}
 }
