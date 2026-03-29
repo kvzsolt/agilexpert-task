@@ -9,7 +9,4 @@ public class SmartOs {
     public static void main(String[] args) {
         SpringApplication.run(SmartOs.class, args);
     }
-
-
-
 }

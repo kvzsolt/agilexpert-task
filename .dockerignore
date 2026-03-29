@@ -1,0 +1,13 @@
+target/
+.git/
+.idea/
+.proxyai/
+.qodo/
+logs/
+data/
+*.log
+Dockerfile*
+docker-compose*.yml
+README.md
+.env
+.env.*
