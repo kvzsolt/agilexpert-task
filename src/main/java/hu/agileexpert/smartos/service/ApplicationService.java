@@ -1,12 +1,15 @@
 package hu.agileexpert.smartos.service;
 
 import hu.agileexpert.smartos.domain.Application;
-import hu.agileexpert.smartos.exception.IdMismatchException;
+import hu.agileexpert.smartos.dto.application.ApplicationRequest;
+import hu.agileexpert.smartos.dto.application.ApplicationResponse;
+import hu.agileexpert.smartos.exception.account.IdMismatchException;
 import hu.agileexpert.smartos.exception.ResourceNotFoundException;
 import hu.agileexpert.smartos.repository.ApplicationRepository;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +17,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class ApplicationService {
-//TODO: Implement model mapper after dtos implemented.
 
     private final ApplicationRepository applicationRepository;
+    private final ModelMapper modelMapper;
 
-    public ApplicationService(ApplicationRepository applicationRepository) {
+    public ApplicationService(ApplicationRepository applicationRepository, ModelMapper modelMapper) {
         this.applicationRepository = applicationRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    public ApplicationResponse create(ApplicationRequest request) {
+        Application app = modelMapper.map(request, Application.class);
+        Application created = create(app);
+        return modelMapper.map(created, ApplicationResponse.class);
+    }
+
+    public ApplicationResponse findByIdResponse(Long id) {
+        return modelMapper.map(findById(id), ApplicationResponse.class);
+    }
+
+    public List<ApplicationResponse> findAllResponses() {
+        return findAll().stream()
+                .map(app -> modelMapper.map(app, ApplicationResponse.class))
+                .toList();
+    }
+
+    public ApplicationResponse update(Long id, ApplicationRequest request) {
+        Application app = modelMapper.map(request, Application.class);
+        Application updated = update(id, app);
+        return modelMapper.map(updated, ApplicationResponse.class);
     }
 
     public Application create(Application application) {
@@ -42,7 +68,7 @@ public class ApplicationService {
             throw new IdMismatchException("Application", id, application.getId());
         }
 
-        existing.setExternalId(application.getExternalId());
+        existing.setUniqueIdentifier(application.getUniqueIdentifier());
         existing.setName(application.getName());
 
         return existing;
@@ -53,4 +79,3 @@ public class ApplicationService {
         applicationRepository.deleteById(id);
     }
 }
-

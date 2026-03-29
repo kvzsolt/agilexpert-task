@@ -9,7 +9,13 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
+.proxyai
+.qodo
+.idea
+/logs
+/data
+/target
+spring-shell.log
 # Package Files #
 *.jar
 *.war
@@ -18,8 +24,6 @@
 *.zip
 *.tar.gz
 *.rar
-.qodo
-.idea
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

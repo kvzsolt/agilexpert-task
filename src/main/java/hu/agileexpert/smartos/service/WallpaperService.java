@@ -1,22 +1,48 @@
 package hu.agileexpert.smartos.service;
 
 import hu.agileexpert.smartos.domain.Wallpaper;
-import hu.agileexpert.smartos.exception.IdMismatchException;
+import hu.agileexpert.smartos.dto.wallpaper.WallpaperRequest;
+import hu.agileexpert.smartos.dto.wallpaper.WallpaperResponse;
+import hu.agileexpert.smartos.exception.account.IdMismatchException;
 import hu.agileexpert.smartos.exception.ResourceNotFoundException;
 import hu.agileexpert.smartos.repository.WallpaperRepository;
 import java.util.List;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public class WallpaperService {
-//TODO: Implement model mapper after dtos implemented.
 
 	private final WallpaperRepository wallpaperRepository;
+	private final ModelMapper modelMapper;
 
-	public WallpaperService(WallpaperRepository wallpaperRepository) {
+	public WallpaperService(WallpaperRepository wallpaperRepository, ModelMapper modelMapper) {
 		this.wallpaperRepository = wallpaperRepository;
+		this.modelMapper = modelMapper;
+	}
+
+	public WallpaperResponse create(WallpaperRequest request) {
+		Wallpaper wallpaper = modelMapper.map(request, Wallpaper.class);
+		Wallpaper created = create(wallpaper);
+		return modelMapper.map(created, WallpaperResponse.class);
+	}
+
+	public WallpaperResponse findByIdResponse(Long id) {
+		return modelMapper.map(findById(id), WallpaperResponse.class);
+	}
+
+	public List<WallpaperResponse> findAllResponses() {
+		return findAll().stream()
+				.map(wallpaper -> modelMapper.map(wallpaper, WallpaperResponse.class))
+				.toList();
+	}
+
+	public WallpaperResponse update(Long id, WallpaperRequest request) {
+		Wallpaper wallpaper = modelMapper.map(request, Wallpaper.class);
+		Wallpaper updated = update(id, wallpaper);
+		return modelMapper.map(updated, WallpaperResponse.class);
 	}
 
 	public Wallpaper create(Wallpaper wallpaper) {
@@ -39,7 +65,7 @@ public class WallpaperService {
 			throw new IdMismatchException("Wallpaper", id, wallpaper.getId());
 		}
 
-		existing.setExternalId(wallpaper.getExternalId());
+		existing.setUniqueIdentifier(wallpaper.getUniqueIdentifier());
 		existing.setName(wallpaper.getName());
 
 		return existing;
@@ -50,4 +76,3 @@ public class WallpaperService {
 		wallpaperRepository.deleteById(id);
 	}
 }
-

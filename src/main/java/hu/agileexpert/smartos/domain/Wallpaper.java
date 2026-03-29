@@ -17,6 +17,8 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Wallpaper {
 
 	@Id
@@ -24,11 +26,12 @@ public class Wallpaper {
 	private Long id;
 
 	@Column(nullable = false, unique = true, length = 100)
-	private String externalId;
+	private String uniqueIdentifier;
 
 	@Column(nullable = false, length = 120)
 	private String name;
 
 	@OneToMany(mappedBy = "wallpaper")
+	@Builder.Default
 	private List<Account> accounts = new ArrayList<>();
 }
