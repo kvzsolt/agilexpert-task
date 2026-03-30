@@ -5,15 +5,18 @@ services:
       dockerfile: Dockerfile
     image: smartos-app:latest
     container_name: smartos-app
+    stdin_open: true
+    tty: true
     depends_on:
       db:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/smartos?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: changeit123
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SERVER_PORT: 8080
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - "8080:8080"
     healthcheck:
@@ -30,14 +33,14 @@ services:
     image: mysql:8.0.45-bookworm
     container_name: smartos-db
     environment:
-      MYSQL_DATABASE: smartos
-      MYSQL_ROOT_PASSWORD: changeit123
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -pchangeit123 --silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -52,3 +55,4 @@ networks:
 
 volumes:
   mysql-data:
+

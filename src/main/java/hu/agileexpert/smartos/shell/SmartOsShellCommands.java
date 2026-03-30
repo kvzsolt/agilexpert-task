@@ -12,6 +12,7 @@ import hu.agileexpert.smartos.service.MenuItemService;
 import hu.agileexpert.smartos.service.MenuService;
 import hu.agileexpert.smartos.service.ThemeService;
 import hu.agileexpert.smartos.service.WallpaperService;
+import hu.agileexpert.smartos.service.openai.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.shell.standard.ShellComponent;
@@ -32,6 +33,7 @@ public class SmartOsShellCommands {
     private final ThemeService themeService;
     private final WallpaperService wallpaperService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final OpenAiService openAiService;
 
 
     @ShellMethod(key = "account-create", value = "Create a new user account with a menu.")
@@ -338,7 +340,25 @@ public class SmartOsShellCommands {
                   wallpaper-list
                   wallpaper-add   --uid <uid> --name <name>
                   wallpaper-select --account-id <id> --wallpaper-id <id>
+               \s
+                AI COMMANDS:
+                  prompt          --text <natural language command>
+                  simulation      (populate database with sample data via LLM)
                 ========================================
                 """;
+    }
+
+    // =============================================
+    // AI-Powered Commands (LLM Integration)
+    // =============================================
+
+    @ShellMethod(key = "prompt", value = "Execute a natural language command using AI/LLM. Example: prompt --text \"indítsd el a térkép alkalmazást\"")
+    public String prompt(@ShellOption(value = "--text") String text) {
+        return openAiService.interpretAndExecute(text);
+    }
+
+    @ShellMethod(key = "simulation", value = "Generate and populate sample data (family, apps, themes, wallpapers) using LLM.")
+    public String simulation() {
+        return openAiService.runSimulation();
     }
 }
